@@ -4,7 +4,7 @@ Emails: nickolas123full@gmail.com , nataliazambe@gmail.com
 algorithm.c (c) 2021
 Description: Contains consumer/producer algorithm
 Created:  2021-03-17T04:49:09.252Z
-Modified: 2021-03-18T05:56:51.335Z
+Modified: 2021-03-18T16:25:04.961Z
 */
 #include "../include/algorithm.h"
 
@@ -56,7 +56,6 @@ static void produce(void* arg)
                 for (; produced_counter > 0; 
                         produced_counter -= number_of_items_to_consume)
                     sem_post(full);
-                produced_counter = 0;
             }
             sem_wait(no_print);
         }
@@ -118,7 +117,6 @@ static void consume(void* arg)
                 for (; consumed_counter > 0; 
                         consumed_counter -= number_of_items_to_produce)
                     sem_post(empty);
-                consumed_counter = 0;
             }
             sem_wait(no_print);
         }

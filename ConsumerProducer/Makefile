@@ -6,3 +6,6 @@ OUTPUT = consumer_producer
 
 all:
 	$(CC) $(FILES) -o $(OUTPUT) $(FLAGS) $(LIBS)
+
+clean:
+	rm $(OUTPUT)
