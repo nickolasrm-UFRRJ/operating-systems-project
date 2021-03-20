@@ -4,7 +4,7 @@ Emails: nickolas123full@gmail.com , nataliazambe@gmail.com
 gui.c (c) 2021
 Description: Contains I/O functions for consumer/producer algorithm
 Created:  2021-03-17T18:15:27.000Z
-Modified: 2021-03-19T07:05:37.959Z
+Modified: 2021-03-20T19:49:15.915Z
 */
 
 #include "../include/gui.h"
@@ -140,9 +140,11 @@ static void update_table(GUI* data)
     for(int i = 0; i < limit; i++, philosophers++)
         print_table_block(table, philosophers[0], 1, i*2+1);
 
-    philosophers += scroll;
-    limit = limit - odd_quantity;
-    for(int i = 0; i < limit; i++, philosophers++)
+    //the last items of the table are displayed at the second row
+    int start = limit - odd_quantity;
+    //jumps the gap between rows
+    philosophers += philosophers_quantity - (start + limit + 2*scroll);
+    for(int i = start - 1; i >= 0; i--, philosophers++)
         print_table_block(table, philosophers[0], 2, i*2+odd_spacer);
 
     wrefresh(table);
