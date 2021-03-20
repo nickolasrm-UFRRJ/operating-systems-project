@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "algorithm.h": "c"
+        "algorithm.h": "c",
+        "gui.h": "c",
+        "chrono": "c"
     }
 }

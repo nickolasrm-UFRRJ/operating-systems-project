@@ -4,7 +4,7 @@ Emails: nickolas123full@gmail.com , nataliazambe@gmail.com
 misc.h (c) 2021
 Description: Header file for misc.c
 Created:  2021-03-17T05:29:12.716Z
-Modified: 2021-03-19T07:17:37.935Z
+Modified: 2021-03-19T05:11:46.437Z
 */
 
 #ifndef MISC
@@ -17,7 +17,9 @@ Modified: 2021-03-19T07:17:37.935Z
 #include <errno.h>
 #include <sys/time.h>
 
+#define SEC_AS_MS 1000
 #define SLEEP 1
+
 #define min(a,b) (((a)<(b))?(a):(b))
 #define max(a,b) (((a)>(b))?(a):(b))
 #define is_odd(a) (a % 2 == 1 ? true : false)
