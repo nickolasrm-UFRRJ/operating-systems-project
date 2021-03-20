@@ -4,33 +4,32 @@ Emails: nickolas123full@gmail.com , nataliazambe@gmail.com
 gui.c (c) 2021
 Description: Contains I/O functions for consumer/producer algorithm
 Created:  2021-03-17T18:15:27.000Z
-Modified: 2021-03-20T15:29:00.398Z
+Modified: 2021-03-20T18:30:48.267Z
 */
 
 #include "../include/gui.h"
 
 //deprecated
-extern void print_products(ConsumerProducer *data)
+extern void print_products()
 {
     printf("------\n");
-    for(int i = 0; i < data->buffer_size; i++)
-        printf("%d\n", data->products[i]);
+    for(int i = 0; i < buffer_size; i++)
+        printf("%d\n", products[i]);
     printf("------");
     fflush(stdout);
 }
 
-extern GUI* alloc_gui(ConsumerProducer *data)
+extern GUI* alloc_gui()
 {
     GUI *gui = (GUI*) malloc(sizeof(GUI));
 
-    gui->consumer_producer = data;
     gui->sleep_time = BASE_SLEEP;
     gui->produced_list_scroll = 0;
     gui->consumed_list_scroll = 0;
     gui->max_produced_list_items = min(MAX_LIST_ITEMS, 
-                                        data->number_of_items_to_produce);
+                                        number_of_items_to_produce);
     gui->max_consumed_list_items = min(MAX_LIST_ITEMS, 
-                                        data->number_of_items_to_consume);
+                                        number_of_items_to_consume);
 
     getmaxyx(stdscr, gui->height, gui->width);
 
@@ -111,10 +110,9 @@ static void update_term_size(GUI* data)
 static void update_progressbar(GUI* data)
 {
     WINDOW* progressbar = data->progressbar;
-    ConsumerProducer* consumer_producer = data->consumer_producer;
     int real_width = data->width-2;
-    float percentage = ((float) consumer_producer->counter / 
-                                consumer_producer->buffer_size);
+    float percentage = ((float) counter / 
+                                buffer_size);
                                 
     int until_spaces = (int)((float) real_width * percentage);
     for(int i = 2; i < until_spaces; i++)
@@ -131,13 +129,12 @@ static void update_progressbar(GUI* data)
 static void update_constants(GUI* data)
 {
     WINDOW* win = data->constants;
-    ConsumerProducer* consumer_producer = data->consumer_producer;
     
-    mvwprintw(win, 1, 2, "Buffer Size: %d    ", consumer_producer->buffer_size);
+    mvwprintw(win, 1, 2, "Buffer Size: %d    ", buffer_size);
     mvwprintw(win, 1, data->width/2, "No of items to consume: %d    ", 
-        consumer_producer->number_of_items_to_consume);
+        number_of_items_to_consume);
     mvwprintw(win, 2, 2, "No of items to produce: %d    ", 
-        consumer_producer->number_of_items_to_produce);
+        number_of_items_to_produce);
     wrefresh(win);
 }
 
@@ -145,15 +142,14 @@ static void update_variables(GUI* data)
 {
     WINDOW* win = data->variables;
     int tmp;
-    ConsumerProducer* consumer_producer = data->consumer_producer;
     
-    sem_getvalue(&consumer_producer->empty, &tmp);
+    sem_getvalue(&empty, &tmp);
     mvwprintw(win, 1, 2, "Empty semaphore: %d      ", tmp);
 
-    sem_getvalue(&consumer_producer->full, &tmp);
+    sem_getvalue(&full, &tmp);
     mvwprintw(win, 1, data->width/2, "Full semaphore: %d     ", tmp);
 
-    mvwprintw(win, 2, 2, "Counter: %d     ", consumer_producer->counter);
+    mvwprintw(win, 2, 2, "Counter: %d     ", counter);
     mvwprintw(win, 2, data->width/2, "Simulation speed: %f    ", 
             2.0f / ((float) data->sleep_time / (MAX_SLEEP)));
     wrefresh(win);
@@ -172,14 +168,14 @@ static void update_last_items(WINDOW* win, int *last, int scroll, int max_items)
 static void update_last_produced(GUI* data)
 {
     update_last_items(data->last_produced, 
-        data->consumer_producer->last_produced, 
+        last_produced, 
         data->produced_list_scroll, data->max_produced_list_items);
 }
 
 static void update_last_consumed(GUI* data)
 {
     update_last_items(data->last_consumed, 
-        data->consumer_producer->last_consumed, 
+        last_consumed, 
         data->consumed_list_scroll, data->max_consumed_list_items);
 }
 
@@ -187,7 +183,7 @@ static void update(GUI* data)
 {
     update_term_size(data);
     update_constants(data);
-    if(data->consumer_producer->number_of_items_to_produce > 0)
+    if(number_of_items_to_produce > 0)
     {
         update_variables(data);
         update_progressbar(data);
@@ -214,7 +210,6 @@ static void scroll_up_input(int *scroll)
 
 static void input(GUI* gui_data)
 {
-    ConsumerProducer* data = gui_data->consumer_producer;
     char op = '0';
 
     op = getch();
@@ -230,20 +225,20 @@ static void input(GUI* gui_data)
             break;
         case 'x':
             scroll_down_input(&gui_data->produced_list_scroll, 
-                            data->number_of_items_to_produce);
+                            number_of_items_to_produce);
             break;
         case 'c':
             scroll_up_input(&gui_data->produced_list_scroll);
             break;
         case 'd':
             scroll_down_input(&gui_data->consumed_list_scroll, 
-                            data->number_of_items_to_consume);
+                            number_of_items_to_consume);
             break;
         case 'f':
             scroll_up_input(&gui_data->consumed_list_scroll);
             break;
         case 'q':
-            data->running = false;
+            running = false;
             break;
         default:
             break;
@@ -256,17 +251,15 @@ static void input(GUI* gui_data)
 static void gui(void *arg)
 {
     start_gui();
-    ConsumerProducer *data = (ConsumerProducer*) arg;
-    GUI* gui_data = alloc_gui(data);
+    GUI* gui_data = alloc_gui();
     draw(gui_data);
     
-    sem_t *no_print = &data->no_print;
     int tmp;
     int sleep_counter = 0;
     
-    while(data->running)
+    while(running)
     {
-        sem_getvalue(no_print, &tmp);
+        sem_getvalue(&no_print, &tmp);
         if (tmp == 0)
         {
             while(sleep_counter < gui_data->sleep_time)
@@ -277,7 +270,7 @@ static void gui(void *arg)
                 sleep_counter += SLEEP_STEP;
             }
             sleep_counter = 0;
-            sem_post(no_print);
+            sem_post(&no_print);
         }
     }
 
@@ -289,7 +282,7 @@ static void gui(void *arg)
 
 
 
-extern void create_gui(pthread_t* thread, ConsumerProducer *data)
+extern void create_gui(pthread_t* thread)
 {
-    create_thread(thread, &gui, data);
+    create_thread(thread, &gui, NULL);
 }

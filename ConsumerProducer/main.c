@@ -4,10 +4,10 @@ Emails: nickolas123full@gmail.com , nataliazambe@gmail.com
 main.c (c) 2021
 Description: Main file for consumer producer algorithm
 Created:  2021-03-17T17:02:27.486Z
-Modified: 2021-03-19T04:47:28.928Z
+Modified: 2021-03-20T18:25:50.216Z
 */
 
-#include "include/struct.h"
+#include "include/data.h"
 #include "include/algorithm.h"
 #include "include/gui.h"
 #include <ncurses.h>
@@ -26,17 +26,17 @@ int main(int argc, char const *argv[])
             if(items_to_produce < 0)
             { items_to_consume -= items_to_produce; items_to_produce = 0;}
             
-            ConsumerProducer *data = alloc_consumer_producer(atoi(argv[1]), 
+            alloc_consumer_producer(atoi(argv[1]), 
                 items_to_consume, items_to_produce);
 
             pthread_t threads[3];
-            create_gui(threads, data);
-            create_consumer(threads+1, data);
-            create_producer(threads+2, data);
+            create_gui(threads);
+            create_consumer(threads+1);
+            create_producer(threads+2);
 
             join_threads(threads, 3);
             
-            free_consumer_producer(data);
+            free_consumer_producer();
             return 0;
         }
         else
