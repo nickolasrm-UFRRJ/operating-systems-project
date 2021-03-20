@@ -4,16 +4,15 @@ Emails: nickolas123full@gmail.com , nataliazambe@gmail.com
 gui.c (c) 2021
 Description: Contains I/O functions for consumer/producer algorithm
 Created:  2021-03-17T18:15:27.000Z
-Modified: 2021-03-19T07:05:37.959Z
+Modified: 2021-03-20T19:38:22.458Z
 */
 
 #include "../include/gui.h"
 
-extern GUI* alloc_gui(DiningPhilosophers *data)
+extern GUI* alloc_gui()
 {
     GUI *gui = (GUI*) malloc(sizeof(GUI));
 
-    gui->dinner = data;
     gui->table_scroll = 0;
     getmaxyx(stdscr, gui->height, gui->width);
 
@@ -58,8 +57,6 @@ static void draw_box(WINDOW* win, char *label)
 
 static void draw(GUI* data)
 {
-    DiningPhilosophers *dinner = data->dinner;
-
     attron(A_BOLD);
     mvprintw(0, 1, "Dining Philosophers");
     attroff(A_BOLD);
@@ -120,7 +117,8 @@ static int calculate_max_philosophers_per_row(GUI* data)
 {
     int table_width, table_height; getmaxyx(data->table, table_height, table_width);
     table_width -= 2; table_height -= 2;
-    return min((int) ceil(data->dinner->philosophers_quantity / 2.0)
+    
+    return min((int) ceil(philosophers_quantity / 2.0)
                      - data->table_scroll,
                 (int) floor(table_width / TABLE_BLOCK_SIZE));
 }
@@ -128,22 +126,22 @@ static int calculate_max_philosophers_per_row(GUI* data)
 static void update_table(GUI* data)
 {
     WINDOW* table = data->table;
-    DiningPhilosophers* dinner = data->dinner;
     
-    const int philosophers_quantity = dinner->philosophers_quantity;
     const int scroll = data->table_scroll;
     const int odd_quantity = is_odd(philosophers_quantity);
     const int odd_spacer = odd_quantity + 1;
     
-    philosopher* philosophers = dinner->philosophers + scroll;
+    philosopher* philosophers_ = philosophers + scroll;
     int limit = calculate_max_philosophers_per_row(data);
-    for(int i = 0; i < limit; i++, philosophers++)
-        print_table_block(table, philosophers[0], 1, i*2+1);
+    for(int i = 0; i < limit; i++, philosophers_++)
+        print_table_block(table, philosophers_[0], 1, i*2+1);
 
-    philosophers += scroll;
-    limit = limit - odd_quantity;
-    for(int i = 0; i < limit; i++, philosophers++)
-        print_table_block(table, philosophers[0], 2, i*2+odd_spacer);
+    //the last items of the table are displayed at the second row
+    int start = limit - odd_quantity;
+    //jumps the gap between rows
+    philosophers_ += philosophers_quantity - (start + limit + 2*scroll);
+    for(int i = start - 1; i >= 0; i--, philosophers_++)
+        print_table_block(table, philosophers_[0], 2, i*2+odd_spacer);
 
     wrefresh(table);
 }
@@ -151,11 +149,10 @@ static void update_table(GUI* data)
 static void update_constants(GUI* data)
 {
     WINDOW* win = data->constants;
-    DiningPhilosophers* dinner = data->dinner;
     
-    mvwprintw(win, 1, 2, "Philosophers quantity: %d    ", dinner->philosophers_quantity);
-    mvwprintw(win, 1, data->width/2, "Thinking time: %d    ", dinner->thinking_time);
-    mvwprintw(win, 2, 2, "Eating time: %d    ", dinner->eating_time);
+    mvwprintw(win, 1, 2, "Philosophers quantity: %d    ", philosophers_quantity);
+    mvwprintw(win, 1, data->width/2, "Thinking time: %d    ", thinking_time);
+    mvwprintw(win, 2, 2, "Eating time: %d    ", eating_time);
     
     wrefresh(win);
 }
@@ -163,12 +160,11 @@ static void update_constants(GUI* data)
 static void update_variables(GUI* data)
 {
     WINDOW* win = data->variables;
-    DiningPhilosophers* dinner = data->dinner;
 
     mvwprintw(win, 1, 2, "Eating philosophers: %d     ",
-        dinner->eating_philosophers_quantity);
+        eating_philosophers_quantity);
     mvwprintw(win, 1, data->width/2, "Thinking philosophers: %d     ", 
-        dinner->thinking_philosophers_quantity);
+        thinking_philosophers_quantity);
     mvwprintw(win, 2, 2, "Table scroll: %d     ",
         data->table_scroll);
         
@@ -198,7 +194,6 @@ static void increment_scroll(GUI* data, int increment)
 
 static void input(GUI* gui_data)
 {
-    DiningPhilosophers* data = gui_data->dinner;
     char op = '0';
 
     op = getch();
@@ -211,7 +206,7 @@ static void input(GUI* gui_data)
             increment_scroll(gui_data, 1);
             break;
         case 'q':
-            data->running = false;
+            running = false;
             break;
         default:
             break;
@@ -224,13 +219,12 @@ static void input(GUI* gui_data)
 static void gui(void *arg)
 {
     start_gui();
-    DiningPhilosophers *data = (DiningPhilosophers*) arg;
-    GUI* gui_data = alloc_gui(data);
+    GUI* gui_data = alloc_gui();
     draw(gui_data);
     
     int tmp;
     
-    while(data->running)
+    while(running)
     {
         input(gui_data);
         update(gui_data);
@@ -245,7 +239,7 @@ static void gui(void *arg)
 
 
 
-extern void create_gui(pthread_t* thread, DiningPhilosophers *data)
+extern void create_gui(pthread_t* thread)
 {
-    create_thread(thread, &gui, data);
+    create_thread(thread, &gui, NULL);
 }

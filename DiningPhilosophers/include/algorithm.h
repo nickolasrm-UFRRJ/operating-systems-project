@@ -4,7 +4,7 @@ Emails: nickolas123full@gmail.com , nataliazambe@gmail.com
 algorithm.h (c) 2021
 Description: Header file for algorithm.c
 Created:  2021-03-18T17:28:51.723Z
-Modified: 2021-03-18T19:51:56.862Z
+Modified: 2021-03-20T19:04:04.508Z
 */
 
 #ifndef ALGORITHM
@@ -13,9 +13,9 @@ Modified: 2021-03-18T19:51:56.862Z
 #include <pthread.h>
 #include <semaphore.h>
 #include <unistd.h>
-#include "struct.h"
+#include "data.h"
 #include "misc.h"
 
-void create_philosopher(pthread_t* thread, DiningPhilosophers *data);
+void create_philosopher(pthread_t* thread);
 
 #endif

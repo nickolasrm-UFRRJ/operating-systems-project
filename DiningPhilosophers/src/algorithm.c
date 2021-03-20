@@ -4,7 +4,7 @@ Emails: nickolas123full@gmail.com , nataliazambe@gmail.com
 algorithm.c (c) 2021
 Description: Contains the dining philosophers algorithm.
 Created:  2021-03-18T17:28:18.591Z
-Modified: 2021-03-19T05:22:08.384Z
+Modified: 2021-03-20T19:11:46.840Z
 */
 
 #include "../include/algorithm.h"
@@ -28,34 +28,27 @@ static inline int previous_chopstick(int chopstick, int chopsticks_quantity)
 
 static void dine(void *arg)
 {
-    DiningPhilosophers* data = (DiningPhilosophers*) arg;
-    const int philosopher_quantity = data->philosophers_quantity;
-    const int thinking_time = data->thinking_time;
-    const int eating_time = data->eating_time;
-    philosopher* philosophers = data->philosophers;
-    sem_t* chopsticks = data->chopsticks;
-    sem_t* mutex = &data->mutex;
     int philosopher_index;
 
-    sem_wait(mutex);
-    philosopher_index = data->next_philosopher_index;
-    data->next_philosopher_index--;
-    sem_post(mutex);
+    sem_wait(&mutex);
+    philosopher_index = next_philosopher_index;
+    next_philosopher_index--;
+    sem_post(&mutex);
 
     int first_chopstick, second_chopstick;
     bool odd = is_odd(philosopher_index);
     if(is_odd(philosopher_index))
     {
         first_chopstick = philosopher_index;
-        second_chopstick = next_chopstick(philosopher_index, philosopher_quantity); 
+        second_chopstick = next_chopstick(philosopher_index, philosophers_quantity); 
     }
     else
     {
-        first_chopstick = previous_chopstick(philosopher_index, philosopher_quantity);
+        first_chopstick = previous_chopstick(philosopher_index, philosophers_quantity);
         second_chopstick = philosopher_index;
     }
 
-    while(data->running)
+    while(running)
     {
 
         sem_wait(chopsticks+first_chopstick);
@@ -64,9 +57,9 @@ static void dine(void *arg)
         //eating
         //stats
         philosophers[philosopher_index] = EATING;
-        sem_wait(mutex);
-        increase_eating_philosophers_quantity(data);
-        sem_post(mutex);
+        sem_wait(&mutex);
+        increase_eating_philosophers_quantity();
+        sem_post(&mutex);
         //doing
         sleep(eating_time);
 
@@ -76,9 +69,9 @@ static void dine(void *arg)
         //thinking
         //stats
         philosophers[philosopher_index] = THINKING;
-        sem_wait(mutex);
-        increase_thinking_philosophers_quantity(data);
-        sem_post(mutex);
+        sem_wait(&mutex);
+        increase_thinking_philosophers_quantity();
+        sem_post(&mutex);
         //doing
         sleep(thinking_time);
     }
@@ -90,7 +83,7 @@ static void dine(void *arg)
 
 
 
-extern inline void create_philosopher(pthread_t* thread, DiningPhilosophers *data)
+extern inline void create_philosopher(pthread_t* thread)
 {
-    return create_thread(thread, &dine, data);
+    return create_thread(thread, &dine, NULL);
 }
