@@ -4,7 +4,11 @@ FILES = $(wildcard *.c) $(wildcard src/*.c)
 FLAGS = -O3
 OUTPUT = dining_philosophers
 
-all:
+all: 
+	sudo apt install gcc libncurses-dev
+	make compile
+
+compile:
 	$(CC) $(FILES) -o $(OUTPUT) $(FLAGS) $(LIBS)
 
 clean:
