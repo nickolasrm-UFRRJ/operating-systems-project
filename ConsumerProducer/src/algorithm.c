@@ -4,7 +4,7 @@ Emails: nickolas123full@gmail.com , nataliazambe@gmail.com
 algorithm.c (c) 2021
 Description: Contains consumer/producer algorithm
 Created:  2021-03-17T04:49:09.252Z
-Modified: 2021-03-20T18:35:08.796Z
+Modified: 2021-04-06T03:43:56.856Z
 */
 #include "../include/algorithm.h"
 
@@ -28,7 +28,14 @@ static inline int process_semaphore(int produced_counter,
         for (; produced_counter > 0; 
                 produced_counter -= max_items_to_consume)
             sem_post(full);
-            
+    else
+    {
+        int tmp;
+        sem_getvalue(full, &tmp);
+        if(tmp == 0)
+            sem_post(full);
+    }
+
     return produced_counter;
 }
 

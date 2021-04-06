@@ -4,7 +4,7 @@ Emails: nickolas123full@gmail.com , nataliazambe@gmail.com
 misc.c (c) 2021
 Description: General purpose functions
 Created:  2021-03-17T03:54:23.303Z
-Modified: 2021-03-18T07:35:55.278Z
+Modified: 2021-04-06T03:23:19.895Z
 */
 #include "../include/misc.h"
 
@@ -56,4 +56,10 @@ extern long timestamp_ms() {
     struct timeval te; 
     gettimeofday(&te, NULL);
     return te.tv_sec*1000LL + te.tv_usec/1000;
+}
+
+extern void init_int_array(int *arr, int length, int value)
+{
+    for(int i = 0; i < length; i++)
+        arr[i] = value;
 }

@@ -4,7 +4,7 @@ Emails: nickolas123full@gmail.com , nataliazambe@gmail.com
 gui.c (c) 2021
 Description: Contains I/O functions for consumer/producer algorithm
 Created:  2021-03-17T18:15:27.000Z
-Modified: 2021-03-20T18:30:48.267Z
+Modified: 2021-04-06T04:08:32.672Z
 */
 
 #include "../include/gui.h"
@@ -161,7 +161,12 @@ static void update_last_items(WINDOW* win, int *last, int scroll, int max_items)
 
     for(int row = 1; 
             row <= max_items; row++, last++)
-        mvwprintw(win, row, 1, "%d", last[0]);
+        if(last[0] != NULL_VALUE)
+            mvwprintw(win, row, 1, "%d              ", last[0]);
+        else
+        { 
+            mvwprintw(win, row, 1, "NOT YET USED", last[0]);
+        }
     wrefresh(win);
 }
 
