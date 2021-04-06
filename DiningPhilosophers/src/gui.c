@@ -161,9 +161,9 @@ static void update_variables(GUI* data)
 {
     WINDOW* win = data->variables;
 
-    mvwprintw(win, 1, 2, "Eating philosophers: %d     ",
+    mvwprintw(win, 1, 2, "Philosophers eating: %d     ",
         eating_philosophers_quantity);
-    mvwprintw(win, 1, data->width/2, "Thinking philosophers: %d     ", 
+    mvwprintw(win, 1, data->width/2, "Philosophers thinking: %d     ", 
         thinking_philosophers_quantity);
     mvwprintw(win, 2, 2, "Table scroll: %d     ",
         data->table_scroll);
