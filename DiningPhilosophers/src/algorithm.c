@@ -4,7 +4,7 @@ Emails: nickolas123full@gmail.com , nataliazambe@gmail.com
 algorithm.c (c) 2021
 Description: Contains the dining philosophers algorithm.
 Created:  2021-03-18T17:28:18.591Z
-Modified: 2021-03-20T19:11:46.840Z
+Modified: 2021-04-06T23:48:58.498Z
 */
 
 #include "../include/algorithm.h"
@@ -50,7 +50,9 @@ static void dine(void *arg)
 
     while(running)
     {
-
+        //stats
+        philosophers[philosopher_index] = HUNGRY;
+        
         sem_wait(chopsticks+first_chopstick);
         sem_wait(chopsticks+second_chopstick);
         

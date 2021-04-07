@@ -4,7 +4,7 @@ Emails: nickolas123full@gmail.com , nataliazambe@gmail.com
 data.h (c) 2021
 Description: Header file for data.c
 Created:  2021-03-18T17:29:04.835Z
-Modified: 2021-03-20T18:52:23.269Z
+Modified: 2021-04-06T23:48:02.885Z
 */
 
 #ifndef DATA
@@ -14,9 +14,10 @@ Modified: 2021-03-20T18:52:23.269Z
 #include <stdlib.h>
 #include <semaphore.h>
 
-typedef bool philosopher;
-#define THINKING false
-#define EATING true
+typedef int philosopher;
+#define THINKING 0
+#define EATING 1
+#define HUNGRY 2
 
 int philosophers_quantity;
 int thinking_time;

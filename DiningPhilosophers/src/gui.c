@@ -4,7 +4,7 @@ Emails: nickolas123full@gmail.com , nataliazambe@gmail.com
 gui.c (c) 2021
 Description: Contains I/O functions for consumer/producer algorithm
 Created:  2021-03-17T18:15:27.000Z
-Modified: 2021-03-20T19:38:22.458Z
+Modified: 2021-04-07T03:13:52.563Z
 */
 
 #include "../include/gui.h"
@@ -14,6 +14,7 @@ extern GUI* alloc_gui()
     GUI *gui = (GUI*) malloc(sizeof(GUI));
 
     gui->table_scroll = 0;
+    gui->color_while_thinking = true;
     getmaxyx(stdscr, gui->height, gui->width);
 
     return gui;
@@ -43,6 +44,7 @@ extern void start_gui()
 
     init_pair(TABLE_BLOCK_GREEN, COLOR_GREEN, COLOR_GREEN);
     init_pair(TABLE_BLOCK_RED, COLOR_RED, COLOR_RED);
+    init_pair(TABLE_BLOCK_BLUE, COLOR_BLUE, COLOR_BLUE);
 }
 
 
@@ -67,7 +69,8 @@ static void draw(GUI* data)
     
     mvprintw(14, 0, "Press 'k' to scroll table to the left, or 'l'"\
         "to scroll table to the right, or 'q' to quit."\
-        "\n- Green = Eating\n- Red = Thinking");
+        "\nPress 'b' to switch philosopher printing color with blue while thinking"\
+        "\n- Eating = Green\n- Hungry = Red\n- Thinking = Blue (if enabled) or Red");
     
     refresh();
     
@@ -97,13 +100,16 @@ static void update_term_size(GUI* data)
     }
 }
 
-static void print_table_block(WINDOW* table, philosopher phil, int y, int x)
+static void print_table_block(WINDOW* table, philosopher phil, int y, int x,
+    bool color_while_thinking)
 {
     int color;
     int tmp;
 
     if (phil == EATING)
         color = TABLE_BLOCK_GREEN;
+    else if(phil == THINKING && color_while_thinking)
+        color = TABLE_BLOCK_BLUE;
     else
         color = TABLE_BLOCK_RED;
 
@@ -130,18 +136,19 @@ static void update_table(GUI* data)
     const int scroll = data->table_scroll;
     const int odd_quantity = is_odd(philosophers_quantity);
     const int odd_spacer = odd_quantity + 1;
+    const bool color_while_thinking = data->color_while_thinking;
     
     philosopher* philosophers_ = philosophers + scroll;
     int limit = calculate_max_philosophers_per_row(data);
     for(int i = 0; i < limit; i++, philosophers_++)
-        print_table_block(table, philosophers_[0], 1, i*2+1);
+        print_table_block(table, philosophers_[0], 1, i*2+1, color_while_thinking);
 
     //the last items of the table are displayed at the second row
     int start = limit - odd_quantity;
     //jumps the gap between rows
     philosophers_ += philosophers_quantity - (start + limit + 2*scroll);
     for(int i = start - 1; i >= 0; i--, philosophers_++)
-        print_table_block(table, philosophers_[0], 2, i*2+odd_spacer);
+        print_table_block(table, philosophers_[0], 2, i*2+odd_spacer, color_while_thinking);
 
     wrefresh(table);
 }
@@ -167,6 +174,8 @@ static void update_variables(GUI* data)
         thinking_philosophers_quantity);
     mvwprintw(win, 2, 2, "Table scroll: %d     ",
         data->table_scroll);
+    mvwprintw(win, 2, data->width/2, "Blue while thinking: %s     ", 
+        data->color_while_thinking ? "Yes" : "No");
         
     wrefresh(win);
 }
@@ -204,6 +213,9 @@ static void input(GUI* gui_data)
             break;
         case 'l':
             increment_scroll(gui_data, 1);
+            break;
+        case 'b':
+            gui_data->color_while_thinking = !gui_data->color_while_thinking;
             break;
         case 'q':
             running = false;

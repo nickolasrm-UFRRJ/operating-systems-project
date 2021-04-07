@@ -4,7 +4,7 @@ Emails: nickolas123full@gmail.com , nataliazambe@gmail.com
 gui.h (c) 2021
 Description: Header file for gui.c
 Created:  2021-03-17T18:15:30.839Z
-Modified: 2021-03-20T19:04:14.530Z
+Modified: 2021-04-07T03:03:05.067Z
 */
 
 #ifndef GRAPHICS
@@ -22,6 +22,7 @@ Modified: 2021-03-20T19:04:14.530Z
 
 #define TABLE_BLOCK_GREEN 1
 #define TABLE_BLOCK_RED 2
+#define TABLE_BLOCK_BLUE 3
 #define TABLE_BLOCK_SIZE 2
 
 struct _GUI
@@ -30,6 +31,8 @@ struct _GUI
     int height;
 
     int table_scroll;
+
+    bool color_while_thinking;
 
     WINDOW *table;
     WINDOW *constants;
